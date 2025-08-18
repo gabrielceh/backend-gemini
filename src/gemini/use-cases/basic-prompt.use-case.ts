@@ -29,7 +29,7 @@ export const basicPromptUseCase = async (
         // hacemos que el modelo razone
         // si es 0, no pensará, por defecto está activavo
         // -1 para pensamiento dinamico, es decir segun la complejidad de la pregunta
-        thinkingBudget: -1,
+        thinkingBudget: 0,
       },
     },
   });

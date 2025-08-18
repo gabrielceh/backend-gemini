@@ -1,4 +1,9 @@
-import { GoogleGenAI } from '@google/genai';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  createPartFromUri,
+  createUserContent,
+  GoogleGenAI,
+} from '@google/genai';
 import { BasicPromptDto } from '../dtos/basic-prompt.dto';
 
 interface Options {
@@ -11,6 +16,18 @@ export const basicPromptStreamUseCase = async (
   basicPromptDto: BasicPromptDto,
   options?: Options,
 ) => {
+  const { files, prompt } = basicPromptDto;
+
+  const images = await Promise.all(
+    files.map(async (file) => {
+      return await ai.files.upload({
+        file: new Blob([new Uint8Array(file.buffer)], {
+          type: file.mimetype?.includes('image') ? file.mimetype : 'image/jpg',
+        }),
+      });
+    }),
+  );
+
   const {
     model = 'gemini-2.5-flash',
     systemInstruction = [
@@ -23,7 +40,16 @@ export const basicPromptStreamUseCase = async (
   // https://ai.google.dev/api/generate-content?hl=es-419#method:-models.streamgeneratecontent
   const response = await ai.models.generateContentStream({
     model: model,
-    contents: basicPromptDto.prompt,
+    // contents: basicPromptDto.prompt,
+    contents: [
+      createUserContent([
+        prompt,
+        // imagenes o archivos
+        ...images.map((image) =>
+          createPartFromUri(image.uri ?? '', image.mimeType ?? ''),
+        ),
+      ]),
+    ],
     config: {
       systemInstruction: systemInstruction,
       thinkingConfig: {
