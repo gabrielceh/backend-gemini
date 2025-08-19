@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { Content, GoogleGenAI } from '@google/genai';
 
 import { ConfigService } from 'src/config/config.service';
 import { BasicPromptDto } from './dtos/basic-prompt.dto';
@@ -16,8 +16,8 @@ export class GeminiService {
       apiKey: this.configService.geminiApiKey,
     });
   }
-
-  // TODO: mantenmer en memoria el historia
+  // ! mantenmer en memoria el historial para agilidad del curso
+  private chatHistory = new Map<string, Content[]>();
 
   async basicPrompt(basicPromptDto: BasicPromptDto) {
     return basicPromptUseCase(this.ai, basicPromptDto);
@@ -28,6 +28,21 @@ export class GeminiService {
   }
 
   async chatStream(chatPromptDto: ChatPromptDto) {
-    return chatPromptStreamUseCase(this.ai, chatPromptDto);
+    const chatHistory = this.getChatHistory(chatPromptDto.chatId);
+    return chatPromptStreamUseCase(this.ai, chatPromptDto, {
+      history: chatHistory,
+    });
+  }
+
+  saveMessage(chatId: string, message: Content) {
+    const messages = this.getChatHistory(chatId);
+    messages.push(message);
+    this.chatHistory.set(chatId, messages);
+    console.log(this.chatHistory);
+  }
+
+  getChatHistory(chatId: string) {
+    // clonamos el historial para que no se modifique
+    return structuredClone(this.chatHistory.get(chatId) ?? []);
   }
 }

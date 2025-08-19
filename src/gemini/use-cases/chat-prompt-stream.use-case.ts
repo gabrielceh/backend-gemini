@@ -1,10 +1,11 @@
-import { createPartFromUri, GoogleGenAI } from '@google/genai';
+import { Content, createPartFromUri, GoogleGenAI } from '@google/genai';
 import { ChatPromptDto } from '../dtos/chat-prompt.dto';
 import { geminiUploadFiles } from '../helpers/gemini-upload-files';
 
 interface Options {
   model?: string;
   systemInstruction?: string[];
+  history: Content[];
 }
 // https://ai.google.dev/gemini-api/docs/text-generation?hl=es-419#multi-turn-conversations
 export const chatPromptStreamUseCase = async (
@@ -23,6 +24,7 @@ export const chatPromptStreamUseCase = async (
       'Utiliza markdown',
       'Usa el sistema métrico decimal',
     ],
+    history = [],
   } = options ?? {};
 
   const chat = ai.chats.create({
@@ -33,16 +35,7 @@ export const chatPromptStreamUseCase = async (
         thinkingBudget: -1,
       },
     },
-    history: [
-      {
-        role: 'user',
-        parts: [{ text: 'Hola' }],
-      },
-      {
-        role: 'model',
-        parts: [{ text: 'Hola ¿qué tal?' }],
-      },
-    ],
+    history: history,
   });
 
   return chat.sendMessageStream({

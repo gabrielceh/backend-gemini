@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
+  Param,
   Post,
   Res,
   UploadedFiles,
@@ -14,7 +16,7 @@ import type { Response } from 'express';
 import { GeminiService } from './gemini.service';
 import { BasicPromptDto } from './dtos/basic-prompt.dto';
 import { ChatPromptDto } from './dtos/chat-prompt.dto';
-import { GenerateContentResponse } from '@google/genai';
+import { Content, GenerateContentResponse } from '@google/genai';
 
 @Controller('gemini')
 export class GeminiController {
@@ -89,8 +91,32 @@ export class GeminiController {
     chatPromptDtop.files = files || [];
 
     const stream = await this.geminiService.chatStream(chatPromptDtop);
-
     const data = await this.outputStreamResponse(res, stream);
-    console.log(data);
+
+    const geminiMessage: Content = {
+      role: 'model',
+      parts: [{ text: data }],
+    };
+
+    const userMessage: Content = {
+      role: 'user',
+      parts: [
+        {
+          text: chatPromptDtop.prompt,
+          // podriamos almacenar url de imagenes para que el usuario pueda verlas, videos, etc
+        },
+      ],
+    };
+
+    this.geminiService.saveMessage(chatPromptDtop.chatId, userMessage);
+    this.geminiService.saveMessage(chatPromptDtop.chatId, geminiMessage);
+  }
+
+  @Get('chat-history/:chatId')
+  getChatHistory(@Param('chatId') chatId: string) {
+    return this.geminiService.getChatHistory(chatId).map((message) => ({
+      role: message.role,
+      text: message.parts?.map((part) => part.text).join(''), // solo almacenamos texto
+    }));
   }
 }
