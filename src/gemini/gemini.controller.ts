@@ -51,7 +51,7 @@ export class GeminiController {
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     // conectamos el dto con los files
-    basicPromptDto.files = files;
+    basicPromptDto.files = files || [];
 
     const stream = await this.geminiService.basicPromptStream(basicPromptDto);
 
