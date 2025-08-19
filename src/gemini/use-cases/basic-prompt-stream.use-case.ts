@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   createPartFromUri,
   createUserContent,
   GoogleGenAI,
 } from '@google/genai';
 import { BasicPromptDto } from '../dtos/basic-prompt.dto';
+import { geminiUploadFiles } from '../helpers/gemini-upload-files';
 
 interface Options {
   model?: string;
@@ -18,15 +18,7 @@ export const basicPromptStreamUseCase = async (
 ) => {
   const { files, prompt } = basicPromptDto;
 
-  const images = await Promise.all(
-    files.map(async (file) => {
-      return await ai.files.upload({
-        file: new Blob([new Uint8Array(file.buffer)], {
-          type: file.mimetype?.includes('image') ? file.mimetype : 'image/jpg',
-        }),
-      });
-    }),
-  );
+  const uploadedFiles = await geminiUploadFiles(ai, files);
 
   const {
     model = 'gemini-2.5-flash',
@@ -45,7 +37,7 @@ export const basicPromptStreamUseCase = async (
       createUserContent([
         prompt,
         // imagenes o archivos
-        ...images.map((image) =>
+        ...uploadedFiles.map((image) =>
           createPartFromUri(image.uri ?? '', image.mimeType ?? ''),
         ),
       ]),
@@ -56,7 +48,7 @@ export const basicPromptStreamUseCase = async (
         // hacemos que el modelo razone
         // si es 0, no pensará, por defecto está activavo
         // -1 para pensamiento dinamico, es decir segun la complejidad de la pregunta
-        thinkingBudget: -1,
+        // thinkingBudget: -1,
       },
     },
   });
