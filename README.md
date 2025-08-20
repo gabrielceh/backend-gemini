@@ -26,6 +26,7 @@ que integra la API de Gemini de Google para consumir modelos de inteligencia art
 
 ## 📂 Estructura del proyecto
 
+```
 src/
 ├── config/ # Configuración general (env, api keys)
 ├── gemini/ # Módulo para la integración con Gemini
@@ -37,6 +38,7 @@ src/
 │ └── gemini.controller.ts
 ├── app.module.ts # Módulo raíz de la aplicación
 └── main.ts # Bootstrap de NestJS
+```
 
 ## ⚙️ Instalación y configuración
 
