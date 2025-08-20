@@ -17,6 +17,7 @@ import { GeminiService } from './gemini.service';
 import { BasicPromptDto } from './dtos/basic-prompt.dto';
 import { ChatPromptDto } from './dtos/chat-prompt.dto';
 import { Content, GenerateContentResponse } from '@google/genai';
+import { ImageGenerationDto } from './dtos/image-generation.dto';
 
 @Controller('gemini')
 export class GeminiController {
@@ -81,7 +82,7 @@ export class GeminiController {
   }
 
   @Post('chat-stream')
-  @UseInterceptors(FilesInterceptor('files')) // file para un archivo, files para varios
+  @UseInterceptors(FilesInterceptor('files')) // file para un archivo, files para varios, siempre debe ser un FormData
   async chatStream(
     @Body() chatPromptDtop: ChatPromptDto,
     @Res() res: Response,
@@ -118,5 +119,22 @@ export class GeminiController {
       role: message.role,
       text: message.parts?.map((part) => part.text).join(''), // solo almacenamos texto
     }));
+  }
+
+  @Post('/image-generation')
+  @UseInterceptors(FilesInterceptor('files')) // file para un archivo, files para varios
+  async imageGeneration(
+    @Body() imageGenerationDto: ImageGenerationDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    imageGenerationDto.files = files || [];
+
+    const { text, imageUrl } =
+      await this.geminiService.imageGeneration(imageGenerationDto);
+
+    return {
+      text,
+      imageUrl,
+    };
   }
 }

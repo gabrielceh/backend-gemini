@@ -12,4 +12,12 @@ export class ConfigService {
     }
     return key;
   }
+
+  get apiUrl(): string {
+    const key = this.nestConfigService.get<string>('API_URL');
+    if (!key) {
+      throw new Error('API_URL is not defined in environment variables');
+    }
+    return key;
+  }
 }
