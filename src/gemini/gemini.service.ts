@@ -3,11 +3,16 @@ import { Content, GoogleGenAI } from '@google/genai';
 
 import { ConfigService } from 'src/config/config.service';
 import { BasicPromptDto } from './dtos/basic-prompt.dto';
-import { basicPromptStreamUseCase, basicPromptUseCase } from './use-cases';
+import {
+  basicPromptStreamUseCase,
+  basicPromptUseCase,
+  getPokemonHelpUseCase,
+} from './use-cases';
 import { ChatPromptDto } from './dtos/chat-prompt.dto';
 import { chatPromptStreamUseCase } from './use-cases/chat-prompt-stream.use-case';
 import { ImageGenerationDto } from './dtos/image-generation.dto';
 import { ImageGenerationUseCase } from './use-cases/image-generation.use-case';
+import { PokemonHelperDto } from './dtos/pokemon-herlper.dto';
 
 @Injectable()
 export class GeminiService {
@@ -54,5 +59,9 @@ export class GeminiService {
       apiUrl: this.configService.apiUrl,
       imageGenerationDto,
     });
+  }
+
+  getPokemonHelp(pokemonHelperDto: PokemonHelperDto) {
+    return getPokemonHelpUseCase(this.ai, pokemonHelperDto);
   }
 }
