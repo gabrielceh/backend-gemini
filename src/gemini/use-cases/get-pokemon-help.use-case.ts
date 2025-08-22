@@ -33,6 +33,7 @@ export const getPokemonHelpUseCase = async (
         Responde en un JSON, con el nombre del pokemon, y un ataque súper efectivo contra el Pokémon que se te da.
         Siempre responde 4 pokemons, con el ataque , número de la pokedex nacional oficial y los tipos del pokémon.
         Ten en cuenta esto:
+          * El nombre que se te pase puede ser el nombre del pokemon o el número de la pokedex nacional oficial segun los videojuegos de pokémon.
           * El ataque tanto en español como en inglés (solo nombres oficiales de los ataques, no inventes nombres de ataques).
           * Los ataques deben ser superfecetios contra los tipos del pokémon dado, no valen ataques neutros o no efectivos.
           * El número de la pokedex nacional oficial segun los videojuegos de pokémon.
@@ -40,6 +41,7 @@ export const getPokemonHelpUseCase = async (
           * Intenta añadir pokémon de varias generaciones, distintas formas, como las alola, galar, megaevoluciones, etc.
           * No te inventes formas, por ejemplo, no exiten los pokémon forma teselia.
           * Si el pokémon seleccionado no existe, responde con el nombre del pokémon seleccionado y el pokemonList vacio, pokedexNumber: -1.
+          * Si el numero de la pokedex nacional oficial no es valido, responde con el nombre del pokémon seleccionado y el pokemonList vacio, pokedexNumber: -1.
           * Este es el formato de respuesta: 
         {
           "pokemonSelected":"nombre del pokemon a vencer",
